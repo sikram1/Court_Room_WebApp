@@ -7,7 +7,7 @@ const Timer = dynamic(() => import("../components/Timer"), { ssr: false });
 const MessagePanel = dynamic(() => import("../components/MessagePanel"), { ssr: false });
 
 export default function CourtRoomPage() {
-  const [manualTime, setManualTime] = useState<number>(180);
+  const [manualTime, setManualTime] = useState<number>(120);
   const [started, setStarted] = useState<boolean>(false);
   const [paused, setPaused] = useState<boolean>(false);
   const [gameOver, setGameOver] = useState<boolean>(false);
@@ -348,13 +348,14 @@ export default function CourtRoomPage() {
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <MessagePanel
-            disabled={!started || gameOver}
-            onCourtTrigger={handleCourtTrigger}
-            onUrgent={() => setTimeout(() => setStage(2), 0)}
-            getHTML={getHTML}
-            resetKey={timerKey}
-          />
+        <MessagePanel
+          key={timerKey}    
+          disabled={!started || gameOver}
+          onCourtTrigger={handleCourtTrigger}
+          onUrgent={() => setTimeout(() => setStage(2), 0)}
+          getHTML={getHTML}
+          resetKey={timerKey}
+        />
           <RecordManager />
         </div>
       </section>
