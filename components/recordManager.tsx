@@ -98,8 +98,11 @@ export default function RecordManager() {
       <button
         onClick={fetchRecords}
         style={{
+          display: "inline-flex",
           marginBottom: 8,
           background: "#e0f2fe",
+          gap:6,
+          alignItems:"center",
           border: "1px solid #93c5fd",
           color: "#1e3a8a",
           borderRadius: 6,
@@ -107,6 +110,7 @@ export default function RecordManager() {
           cursor: "pointer",
         }}
       >
+        <img src="/icons/refresh-icon.svg" alt="Save" width={16} height={16} />
         Refresh
       </button>
 
@@ -196,25 +200,34 @@ export default function RecordManager() {
                         setEditedContent(r.caseDocument);
                       }}
                       style={{
-                        background: "#fde68a",
-                        border: "1px solid #fbbf24",
+                        display: "inline-flex",
+                        marginBottom: 8,
+                        background: "#e0f2fe",
+                        gap:6,
+                        border: "1px solid #93c5fd",
                         borderRadius: 6,
                         padding: "6px 12px",
                         cursor: "pointer",
                       }}
                     >
+                      <img src="/icons/edit-icon.svg" alt="Save" width={16} height={16} />
                       Edit
                     </button>
                     <button
                       onClick={() => handleDelete(r.id)}
                       style={{
-                        background: "#fee2e2",
-                        border: "1px solid #fca5a5",
+                        display: "inline-flex",
+                        marginBottom: 8,
+                        background: "#e0f2fe",
+                        gap:6,
+                        border: "1px solid #93c5fd",
                         borderRadius: 6,
                         padding: "6px 12px",
                         cursor: "pointer",
+                        gap:6,
                       }}
                     >
+                      <img src="/icons/delete-icon.svg" alt="Save" width={16} height={16} />
                       Delete
                     </button>
                   </div>
