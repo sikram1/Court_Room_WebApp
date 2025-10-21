@@ -1,5 +1,6 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useContext } from "react";
+import { ThemeContext } from "../app/ThemeContext";
 
 type Msg = {
   id: number;
@@ -31,7 +32,10 @@ export default function MessagePanel({
   const intervalRef = useRef<number | null>(null);
   const escalationTimers = useRef<Map<number, number>>(new Map());
   const hasStartedRef = useRef(false);
-  const versionRef = useRef(0); // Prevent old timers after reset
+  const versionRef = useRef(0);
+
+  const { theme } = useContext(ThemeContext);
+  const isDark = theme === "dark";
 
   // ---------- CLEANUP ----------
   const cleanupTimers = () => {
@@ -45,23 +49,19 @@ export default function MessagePanel({
 
   // ---------- RESET ----------
   useEffect(() => {
-    versionRef.current += 1; // increment version to invalidate old timers
+    versionRef.current += 1;
     cleanupTimers();
     idRef.current = 1;
     hasStartedRef.current = false;
     setMessages([]);
 
-    return () => {
-      cleanupTimers();
-    };
+    return () => cleanupTimers();
   }, [resetKey]);
 
   // ---------- INITIALIZE ----------
   useEffect(() => {
-    cleanupTimers(); // Always start clean
-
-    if (disabled) return;
-    if (hasStartedRef.current) return;
+    cleanupTimers();
+    if (disabled || hasStartedRef.current) return;
     hasStartedRef.current = true;
 
     const welcome: Msg = {
@@ -72,37 +72,26 @@ export default function MessagePanel({
     };
 
     setMessages([welcome]);
-    setTimeout(
-      () => setMessages((prev) => prev.filter((m) => m.source !== "System")),
-      30000
-    );
+    setTimeout(() => setMessages((prev) => prev.filter((m) => m.source !== "System")), 30000);
 
     const sources = ["Boss", "Family", "Agile"];
     const bossMsgs = ["fix input validation", "fix secure database"];
-    const familyMsgs = [
-      "Dinner is ready!",
-      "Can you pick up kids after work?",
-      "Take a short break!",
-    ];
+    const familyMsgs = ["Dinner is ready!", "Can you pick up kids after work?", "Take a short break!"];
     const agileMsgs = ["fix alt in img1", "fix user login"];
     const currentVersion = versionRef.current;
 
     intervalRef.current = window.setInterval(() => {
-      if (versionRef.current !== currentVersion) return; // old interval ignored
+      if (versionRef.current !== currentVersion) return;
       const src = sources[Math.floor(Math.random() * sources.length)];
       let msg = "";
-      if (src === "Boss")
-        msg = bossMsgs[Math.floor(Math.random() * bossMsgs.length)];
-      else if (src === "Family")
-        msg = familyMsgs[Math.floor(Math.random() * familyMsgs.length)];
+      if (src === "Boss") msg = bossMsgs[Math.floor(Math.random() * bossMsgs.length)];
+      else if (src === "Family") msg = familyMsgs[Math.floor(Math.random() * familyMsgs.length)];
       else msg = agileMsgs[Math.floor(Math.random() * agileMsgs.length)];
 
       addMessage(src, msg);
     }, 20000);
 
-    return () => {
-      cleanupTimers();
-    };
+    return () => cleanupTimers();
   }, [disabled]);
 
   // ---------- ADD MESSAGE ----------
@@ -113,10 +102,9 @@ export default function MessagePanel({
 
       const msg: Msg = { id: idRef.current++, source, text, createdAt: Date.now(), urgent };
 
-      // Escalate only for Boss and Agile
       if (!urgent && ["Boss", "Agile"].includes(source)) {
         const escalationId = window.setTimeout(() => {
-          if (versionRef.current !== version) return; // skip if reset
+          if (versionRef.current !== version) return;
           const html = getHTML ? getHTML() : "";
           if (!isIssueFixed(text, html)) {
             setMessages((prevMsgs) => {
@@ -124,9 +112,8 @@ export default function MessagePanel({
                 const urgentMsg: Msg = { ...msg, urgent: true };
                 setTimeout(() => onUrgent?.(), 0);
 
-                // Court escalation after 20s if still unfixed
                 const courtTimer = window.setTimeout(() => {
-                  if (versionRef.current !== version) return; // skip if reset
+                  if (versionRef.current !== version) return;
                   const currentHTML = getHTML ? getHTML() : "";
                   if (!isIssueFixed(text, currentHTML)) {
                     setMessages((prevFinal) =>
@@ -155,19 +142,10 @@ export default function MessagePanel({
   // ---------- FIX DETECTION ----------
   const isIssueFixed = (text: string, html: string) => {
     if (!html) return false;
-
-    if (/alt/i.test(text))
-      return /<img[^>]+alt=["'][^"']+["'][^>]*>/i.test(html);
-
-    if (/validation/i.test(text))
-      return /<input[^>]+(type=["']email["']|pattern=|required)/i.test(html);
-
-    if (/user login/i.test(text))
-      return /<input[^>]+type=["']password["']/.test(html);
-
-    if (/secure/i.test(text))
-      return /https:\/\//i.test(html);
-
+    if (/alt/i.test(text)) return /<img[^>]+alt=["'][^"']+["'][^>]*>/i.test(html);
+    if (/validation/i.test(text)) return /<input[^>]+(type=["']email["']|pattern=|required)/i.test(html);
+    if (/user login/i.test(text)) return /<input[^>]+type=["']password["']/.test(html);
+    if (/secure/i.test(text)) return /https:\/\//i.test(html);
     return false;
   };
 
@@ -198,19 +176,20 @@ export default function MessagePanel({
   return (
     <div
       style={{
-        background: "rgba(255,255,255,0.98)",
+        background: isDark ? "#2a2a2a" : "rgba(255,255,255,0.98)",
         padding: 16,
         borderRadius: 10,
-        boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
+        boxShadow: isDark ? "0 4px 16px rgba(0,0,0,0.5)" : "0 4px 16px rgba(0,0,0,0.06)",
         fontFamily: "Segoe UI, Roboto, sans-serif",
+        color: isDark ? "#f0f0f0" : "#111827",
       }}
     >
       <h3
         style={{
           marginTop: 0,
           fontSize: "1.1rem",
-          color: "#111827",
-          borderBottom: "2px solid #e5e7eb",
+          color: isDark ? "#f9fafb" : "#111827",
+          borderBottom: isDark ? "2px solid #444" : "2px solid #e5e7eb",
           paddingBottom: 6,
           marginBottom: 10,
         }}
@@ -220,7 +199,7 @@ export default function MessagePanel({
 
       <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
         {messages.length === 0 ? (
-          <li style={{ textAlign: "center", color: "#9ca3af", padding: "10px 0" }}>
+          <li style={{ textAlign: "center", color: isDark ? "#9ca3af" : "#9ca3af", padding: "10px 0" }}>
             No messages yet
           </li>
         ) : (
@@ -228,12 +207,18 @@ export default function MessagePanel({
             <li
               key={m.id}
               style={{
-                border: "1px solid #e5e7eb",
+                border: isDark ? "1px solid #444" : "1px solid #e5e7eb",
                 borderLeft: m.urgent ? "4px solid #dc2626" : "4px solid transparent",
                 padding: "10px 12px",
                 marginBottom: 10,
                 borderRadius: 8,
-                background: m.urgent ? "#fef2f2" : "#f9fafb",
+                background: m.urgent
+                  ? isDark
+                    ? "#3b0d0d"
+                    : "#fef2f2"
+                  : isDark
+                  ? "#1e1e1e"
+                  : "#f9fafb",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
@@ -241,10 +226,16 @@ export default function MessagePanel({
               }}
             >
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600, color: "#111827" }}>{m.source}</div>
+                <div style={{ fontWeight: 600, color: isDark ? "#f3f4f6" : "#111827" }}>{m.source}</div>
                 <div
                   style={{
-                    color: m.urgent ? "#b91c1c" : "#374151",
+                    color: m.urgent
+                      ? isDark
+                        ? "#f87171"
+                        : "#b91c1c"
+                      : isDark
+                      ? "#d1d5db"
+                      : "#374151",
                     fontSize: 14,
                     marginTop: 2,
                   }}
@@ -257,7 +248,7 @@ export default function MessagePanel({
                 <div
                   style={{
                     fontSize: 11,
-                    color: "#6b7280",
+                    color: isDark ? "#9ca3af" : "#6b7280",
                     marginTop: 4,
                   }}
                 >
@@ -272,18 +263,18 @@ export default function MessagePanel({
                     cursor: "pointer",
                     padding: "6px 12px",
                     borderRadius: 8,
-                    background: "#f3f4f6",
-                    border: "1px solid #e5e7eb",
-                    color: "#111827",
+                    background: isDark ? "#333" : "#f3f4f6",
+                    border: isDark ? "1px solid #555" : "1px solid #e5e7eb",
+                    color: isDark ? "#f0f0f0" : "#111827",
                     fontSize: 13,
                     fontWeight: 500,
                     transition: "all 0.2s ease",
                   }}
                   onMouseOver={(e) =>
-                    (e.currentTarget.style.background = "#e5e7eb")
+                    (e.currentTarget.style.background = isDark ? "#444" : "#e5e7eb")
                   }
                   onMouseOut={(e) =>
-                    (e.currentTarget.style.background = "#f3f4f6")
+                    (e.currentTarget.style.background = isDark ? "#333" : "#f3f4f6")
                   }
                 >
                   Handle

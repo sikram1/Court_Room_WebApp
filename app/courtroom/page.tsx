@@ -1,12 +1,14 @@
 "use client";
 import dynamic from "next/dynamic";
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useContext } from "react";
 import RecordManager from "../../components/recordManager";
+import { ThemeContext } from "../ThemeContext";
 
 const Timer = dynamic(() => import("../../components/Timer"), { ssr: false });
 const MessagePanel = dynamic(() => import("../../components/MessagePanel"), { ssr: false });
 
 export default function CourtRoomPage() {
+  const { theme } = useContext(ThemeContext);
   const [manualTime, setManualTime] = useState<number>(120);
   const [started, setStarted] = useState<boolean>(false);
   const [paused, setPaused] = useState<boolean>(false);
@@ -124,6 +126,16 @@ export default function CourtRoomPage() {
     }
   }, [gameOver]);
 
+  const themeStyles = {
+    mainBg: theme === "light" ? "#f9fafb" : "#121212",
+    cardBg: theme === "light" ? "rgba(255,255,255,0.96)" : "rgba(36,36,36,0.96)",
+    text: theme === "light" ? "#111827" : "#f9fafb",
+    border: theme === "light" ? "#e5e7eb" : "#333",
+    subText: theme === "light" ? "#374151" : "#d1d5db",
+    buttonBg: theme === "light" ? "#f3f4f6" : "#2e2e2e",
+    buttonText: theme === "light" ? "#111827" : "#f9fafb",
+  };
+
   return (
     <main
       style={{
@@ -135,6 +147,7 @@ export default function CourtRoomPage() {
         backgroundSize: "cover",
         backgroundRepeat: "no-repeat",
         fontFamily: "Segoe UI, Roboto, Arial, sans-serif",
+        color: themeStyles.text,
       }}
     >
       {/* HEADER */}
@@ -145,10 +158,11 @@ export default function CourtRoomPage() {
           justifyContent: "space-between",
           alignItems: "center",
           marginBottom: 12,
-          background: "rgba(255,255,255,0.92)",
+          background: themeStyles.cardBg,
           borderRadius: 8,
           padding: "10px 14px",
           gap: 10,
+          color: themeStyles.text,
         }}
       >
         <h1
@@ -180,9 +194,11 @@ export default function CourtRoomPage() {
                 width: 70,
                 padding: 6,
                 borderRadius: 6,
-                border: "1px solid #ccc",
+                border: `1px solid ${themeStyles.border}`,
                 textAlign: "center",
                 fontSize: 14,
+                background: themeStyles.cardBg,
+                color: themeStyles.text,
               }}
             />
             <span style={{ fontSize: 13 }}>Sec</span>
@@ -195,9 +211,9 @@ export default function CourtRoomPage() {
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 8,
-                background: "#f3f4f6",
-                color: "#111827",
-                border: "1px solid #e5e7eb",
+                background: themeStyles.buttonBg,
+                color: themeStyles.buttonText,
+                border: `1px solid ${themeStyles.border}`,
                 borderRadius: 8,
                 padding: "8px 12px",
                 fontSize: 14,
@@ -215,9 +231,9 @@ export default function CourtRoomPage() {
                   display: "inline-flex",
                   alignItems: "center",
                   gap: 8,
-                  background: "#f3f4f6",
-                  color: "#111827",
-                  border: "1px solid #e5e7eb",
+                  background: themeStyles.buttonBg,
+                  color: themeStyles.buttonText,
+                  border: `1px solid ${themeStyles.border}`,
                   borderRadius: 8,
                   padding: "8px 12px",
                   fontSize: 14,
@@ -246,18 +262,19 @@ export default function CourtRoomPage() {
       >
         <div
           style={{
-            background: "rgba(255,255,255,0.96)",
+            background: themeStyles.cardBg,
             padding: 14,
             borderRadius: 10,
             boxShadow: "0 6px 24px rgba(15,23,42,0.04)",
+            color: themeStyles.text,
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <h2 style={{ margin: 0, fontSize: "1.1rem" }}>Work Desk — Stage {stage}</h2>
-            <div style={{ color: "#6b7280", fontSize: 13 }}>{gameOver ? "Courtroom" : "Workspace"}</div>
+            <div style={{ color: themeStyles.subText, fontSize: 13 }}>{gameOver ? "Courtroom" : "Workspace"}</div>
           </div>
 
-          <p style={{ color: "#374151", fontSize: 14, lineHeight: 1.5 }}>
+          <p style={{ color: themeStyles.subText, fontSize: 14, lineHeight: 1.5 }}>
             Edit the code in the workspace. When messages arrive, fix issues like missing <code>alt</code> attributes or
             input validation. If ignored, issues escalate, and you may be summoned to court.
           </p>
@@ -270,13 +287,13 @@ export default function CourtRoomPage() {
             style={{
               width: "98%",
               minHeight: 220,
-              border: "1px solid #e6e9ef",
+              border: `1px solid ${themeStyles.border}`,
               borderRadius: 8,
               padding: 12,
               fontFamily: "Consolas, monospace",
               fontSize: 13,
-              color: "#111827",
-              background: !started || gameOver ? "#f8fafc" : "#ffffff",
+              color: themeStyles.text,
+              background: !started || gameOver ? themeStyles.buttonBg : themeStyles.cardBg,
             }}
           />
 
@@ -295,9 +312,9 @@ export default function CourtRoomPage() {
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 8,
-                background: "#f3f4f6",
-                color: "#111827",
-                border: "1px solid #e5e7eb",
+                background: themeStyles.buttonBg,
+                color: themeStyles.buttonText,
+                border: `1px solid ${themeStyles.border}`,
                 borderRadius: 8,
                 padding: "8px 14px",
                 fontSize: 14,
@@ -313,9 +330,9 @@ export default function CourtRoomPage() {
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 8,
-                background: "#f3f4f6",
-                color: "#111827",
-                border: "1px solid #e5e7eb",
+                background: themeStyles.buttonBg,
+                color: themeStyles.buttonText,
+                border: `1px solid ${themeStyles.border}`,
                 borderRadius: 8,
                 padding: "8px 14px",
                 fontSize: 14,
@@ -332,9 +349,9 @@ export default function CourtRoomPage() {
                   display: "inline-flex",
                   alignItems: "center",
                   gap: 8,
-                  background: "#f3f4f6",
-                  color: "#111827",
-                  border: "1px solid #16a34a",
+                  background: themeStyles.buttonBg,
+                  color: themeStyles.buttonText,
+                  border: `1px solid #16a34a`,
                   borderRadius: 8,
                   padding: "8px 14px",
                   fontSize: 14,
@@ -348,14 +365,14 @@ export default function CourtRoomPage() {
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        <MessagePanel
-          key={timerKey}    
-          disabled={!started || gameOver}
-          onCourtTrigger={handleCourtTrigger}
-          onUrgent={() => setTimeout(() => setStage(2), 0)}
-          getHTML={getHTML}
-          resetKey={timerKey}
-        />
+          <MessagePanel
+            key={timerKey}
+            disabled={!started || gameOver}
+            onCourtTrigger={handleCourtTrigger}
+            onUrgent={() => setTimeout(() => setStage(2), 0)}
+            getHTML={getHTML}
+            resetKey={timerKey}
+          />
           <RecordManager />
         </div>
       </section>

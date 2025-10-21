@@ -1,6 +1,6 @@
-//components/recordManager.tsx
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import { ThemeContext } from "../app/ThemeContext";
 
 type RecordType = {
   id: number;
@@ -16,14 +16,16 @@ export default function RecordManager() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editedContent, setEditedContent] = useState("");
 
+  const { theme } = useContext(ThemeContext);
+  const isDark = theme === "dark";
+
   // ---------------- FETCH ALL ----------------
   const fetchRecords = async () => {
     setLoading(true);
     try {
       const res = await fetch("/api/records");
       const data = await res.json();
-  
-      // Defensive check
+
       if (Array.isArray(data)) {
         setRecords(data);
       } else {
@@ -33,12 +35,12 @@ export default function RecordManager() {
     } catch (err) {
       console.error("Fetch error:", err);
       alert("Failed to load records");
-      setRecords([]); // fallback
+      setRecords([]);
     } finally {
       setLoading(false);
     }
   };
-  
+
   useEffect(() => {
     fetchRecords();
   }, []);
@@ -88,23 +90,29 @@ export default function RecordManager() {
   return (
     <div
       style={{
-        background: "rgba(255,255,255,0.96)",
+        background: isDark ? "#2a2a2a" : "rgba(255,255,255,0.96)",
         padding: 12,
         borderRadius: 8,
         marginTop: 16,
+        color: isDark ? "#f3f4f6" : "#111827",
+        boxShadow: isDark
+          ? "0 4px 12px rgba(0,0,0,0.4)"
+          : "0 4px 12px rgba(0,0,0,0.08)",
       }}
     >
-      <h3>Saved Records</h3>
+      <h3 style={{ marginTop: 0, color: isDark ? "#f9fafb" : "#111827" }}>
+        Saved Records
+      </h3>
       <button
         onClick={fetchRecords}
         style={{
           display: "inline-flex",
           marginBottom: 8,
-          background: "#e0f2fe",
-          gap:6,
-          alignItems:"center",
-          border: "1px solid #93c5fd",
-          color: "#1e3a8a",
+          background: isDark ? "#1e3a8a" : "#e0f2fe",
+          gap: 6,
+          alignItems: "center",
+          border: isDark ? "1px solid #374151" : "1px solid #93c5fd",
+          color: isDark ? "#f3f4f6" : "#1e3a8a",
           borderRadius: 6,
           padding: "6px 12px",
           cursor: "pointer",
@@ -124,14 +132,19 @@ export default function RecordManager() {
             <li
               key={r.id}
               style={{
-                borderBottom: "1px solid #ddd",
+                borderBottom: `1px solid ${isDark ? "#444" : "#ddd"}`,
                 padding: "8px 0",
               }}
             >
               <div style={{ fontWeight: 600 }}>
                 {r.userName} — {r.sessionStage}
               </div>
-              <div style={{ fontSize: 12, color: "#666" }}>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: isDark ? "#9ca3af" : "#666",
+                }}
+              >
                 {new Date(r.createdAt).toLocaleString()}
               </div>
 
@@ -144,7 +157,9 @@ export default function RecordManager() {
                       width: "100%",
                       minHeight: 100,
                       borderRadius: 4,
-                      border: "1px solid #ccc",
+                      border: `1px solid ${isDark ? "#555" : "#ccc"}`,
+                      background: isDark ? "#1e1e1e" : "#fff",
+                      color: isDark ? "#f3f4f6" : "#111827",
                       marginTop: 6,
                       padding: 6,
                       fontFamily: "Consolas, monospace",
@@ -168,12 +183,13 @@ export default function RecordManager() {
                   <button
                     onClick={() => setEditingId(null)}
                     style={{
-                      background: "#f3f4f6",
-                      border: "1px solid #d1d5db",
+                      background: isDark ? "#333" : "#f3f4f6",
+                      border: `1px solid ${isDark ? "#555" : "#d1d5db"}`,
                       borderRadius: 6,
                       padding: "6px 12px",
                       marginTop: 4,
                       cursor: "pointer",
+                      color: isDark ? "#f3f4f6" : "#111827",
                     }}
                   >
                     Cancel
@@ -185,7 +201,8 @@ export default function RecordManager() {
                     style={{
                       whiteSpace: "pre-wrap",
                       fontSize: 13,
-                      background: "#f9fafb",
+                      background: isDark ? "#1e1e1e" : "#f9fafb",
+                      color: isDark ? "#f3f4f6" : "#111827",
                       padding: 6,
                       borderRadius: 4,
                       marginTop: 6,
@@ -201,10 +218,10 @@ export default function RecordManager() {
                       }}
                       style={{
                         display: "inline-flex",
-                        marginBottom: 8,
-                        background: "#e0f2fe",
-                        gap:6,
-                        border: "1px solid #93c5fd",
+                        background: isDark ? "#1e3a8a" : "#e0f2fe",
+                        color: isDark ? "#f3f4f6" : "#1e3a8a",
+                        gap: 6,
+                        border: `1px solid ${isDark ? "#374151" : "#93c5fd"}`,
                         borderRadius: 6,
                         padding: "6px 12px",
                         cursor: "pointer",
@@ -217,14 +234,13 @@ export default function RecordManager() {
                       onClick={() => handleDelete(r.id)}
                       style={{
                         display: "inline-flex",
-                        marginBottom: 8,
-                        background: "#e0f2fe",
-                        gap:6,
-                        border: "1px solid #93c5fd",
+                        background: isDark ? "#7f1d1d" : "#e0f2fe",
+                        color: isDark ? "#f3f4f6" : "#1e3a8a",
+                        gap: 6,
+                        border: `1px solid ${isDark ? "#444" : "#93c5fd"}`,
                         borderRadius: 6,
                         padding: "6px 12px",
                         cursor: "pointer",
-                        gap:6,
                       }}
                     >
                       <img src="/icons/delete-icon.svg" alt="Save" width={16} height={16} />

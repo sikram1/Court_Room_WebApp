@@ -2,10 +2,7 @@
 import React, { useState, createContext, useEffect } from "react";
 import Link from "next/link";
 
-export const ThemeContext = createContext({
-  theme: "light",
-  toggleTheme: () => {},
-});
+import { ThemeContext } from "./ThemeContext";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState("light");
@@ -48,15 +45,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               zIndex: 100,
             }}
           >
-            {/* Left: Student Number */}
             <div style={{ fontWeight: 600 }}>Student: 20900837</div>
 
-            {/* Center: Title */}
             <h2 style={{ margin: 0, fontSize: "1.4rem" }}>Courtroom Simulation</h2>
 
-            {/* Right: Menu + Theme Toggle */}
             <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-              {/* Hamburger Menu */}
               <div style={{ position: "relative" }}>
                 <button
                   aria-label="Menu"
@@ -108,7 +101,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 )}
               </div>
 
-              {/* Theme Toggle Button */}
               <button
                 onClick={toggleTheme}
                 style={{
@@ -126,10 +118,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
           </header>
 
-          {/* Page Content */}
           <main style={{ minHeight: "85vh", padding: "40px 20px" }}>{children}</main>
 
-          {/* Footer */}
           <footer
             style={{
               padding: "20px",
